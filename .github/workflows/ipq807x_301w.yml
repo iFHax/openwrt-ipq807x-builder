@@ -14,8 +14,16 @@ jobs:
 
             - name: Clone AgustinLorenzo openwrt for IPQ807x
               run: |
-                git clone https://github.com/AgustinLorenzo/openwrt.git
+                git clone --branch main_nss https://github.com/AgustinLorenzo/openwrt.git openwrt
 
+            - name: Move openwrt files to root
+              run: |
+                mv openwrt/* .
+                
+            - name: Clean up temporary folder
+              run: |
+                rm -rf openwrt
+                
             - name: Clone Argon theme
               run: |
                 git clone https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
