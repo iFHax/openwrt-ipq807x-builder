@@ -86,9 +86,9 @@ jobs:
             - name: Create a release
               uses: "ncipollo/release-action@v1"
               with:
-                name: "${{ env.NOW }} | Updated custom prebuilt images for devices (NSS-WiFi)"
-                commit: "custom_main_nss"
-                tag: "ipq807x-nsswifi-${{ env.NOW }}"
+                name: "${{ env.NOW }} | Updated custom prebuilt images for 301w (NSS-WiFi)"
+                commit: "main"
+                tag: "ipq807x-nsswifi-301w-${{ env.NOW }}"
                 generateReleaseNotes: true
                 makeLatest: true
                 artifacts: bin/targets/qualcommax/ipq807x/*
