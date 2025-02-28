@@ -14,7 +14,7 @@ jobs:
 
             - name: Clone AgustinLorenzo openwrt for IPQ807x
               run: |
-                git clone https://github.com/AgustinLorenzo/openwrt.git;main_nss .
+                git clone https://github.com/AgustinLorenzo/openwrt.git .
 
             - name: Clone Argon theme
               run: |
