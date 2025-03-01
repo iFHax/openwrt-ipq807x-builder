@@ -39,7 +39,7 @@ jobs:
 
             - name: Import full config for IPQ807x NSS
               run: |
-                mv .full_config_301w .config
+                mv .full_custom_config .config
 
             - name: QoL fixes on default config
               run: |
