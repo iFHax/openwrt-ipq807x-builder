@@ -3,89 +3,89 @@ name: Build IPQ807x NSS WiFi for devices
 on: workflow_dispatch
 
 jobs:
-    build:
-        name: Prepare and build IPQ807x NSS images for devices
-        runs-on: ubuntu-latest
+  build:
+    name: Prepare and build IPQ807x NSS images for devices
+    runs-on: ubuntu-latest
 
-        steps:
-        
-            - name: Checkout
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
-            - name: Clone AgustinLorenzo openwrt for IPQ807x
-              run: |
-                git clone --branch main_nss https://github.com/AgustinLorenzo/openwrt.git openwrt
+      - name: Clone AgustinLorenzo openwrt for IPQ807x
+        run: git clone --branch main_nss https://github.com/AgustinLorenzo/openwrt.git openwrt
 
-            - name: Move openwrt files to root
-              run: |
-                mv openwrt/* .
-                
-            - name: Clean up temporary folder
-              run: |
-                rm -rf openwrt
-                
-            - name: Clone Argon theme
-              run: |
-                git clone https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
+      - name: Move openwrt files to root
+        run: mv openwrt/* .
 
-            - name: Update and install feeds
-              run: |
-                ./scripts/feeds update -a
-                ./scripts/feeds install -a
+      - name: Clean up temporary folder
+        run: rm -rf openwrt
 
-            - name: Import full config for IPQ807x NSS
-              run: |
-                mv .full_custom_config .config
+      - name: Clone Openwrt-cloudflared
+        run: git clone https://github.com/moetayuko/openwrt-cloudflared.git openwrt-cloudflared
 
-            - name: QoL fixes on default config
-              run: |
-                mkdir -p files/etc/uci-defaults
-                cat > files/etc/uci-defaults/99-qol_fixes << EOF
-                uci set wireless.radio0.country='US'
-                uci set wireless.radio1.country='US'
-                uci set wireless.radio2.country='US'
-                uci set wireless.radio1.disabled=0
-                uci set wireless.radio2.disabled=0
-                uci set pbuf.opt.memory_profile=auto
-                uci set network.globals.packet_steering=0
-                uci set firewall.@defaults[0].flow_offloading=0
-                uci set ecm.@general[0].enable_bridge_filtering=0
-                uci set system.@system[0].cronloglevel='7'
-                /etc/init.d/mwan3 stop
-                /etc/init.d/mwan3 disable
-                /etc/init.d/sqm stop
-                /etc/init.d/sqm disable
-                uci commit
-                EOF
+      - name: Copy Makefile
+        run: cp openwrt-cloudflared/golang/Makefile package/golang
 
-            - name: Download package sources
-              run: make download V=s
+      - name: Clone Argon theme
+        run: git clone https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
 
-            - name: Build tools
-              run: |
-                make tools/install -j$(nproc) V=s || \
-                make tools/install V=s
+      - name: Update and install feeds
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
 
-            - name: Build toolchain
-              run: |
-                make toolchain/install -j$(nproc) V=s || \
-                make toolchain/install V=s
+      - name: Import full config for IPQ807x NSS
+        run: mv .full_custom_config .config
 
-            - name: Build target images
-              run: |
-                make -j$(nproc) V=s || \
-                make V=s
+      - name: QoL fixes on default config
+        run: |
+          mkdir -p files/etc/uci-defaults
+          cat > files/etc/uci-defaults/99-qol_fixes << EOF
+          uci set wireless.radio0.country='US'
+          uci set wireless.radio1.country='US'
+          uci set wireless.radio2.country='US'
+          uci set wireless.radio1.disabled=0
+          uci set wireless.radio2.disabled=0
+          uci set pbuf.opt.memory_profile=auto
+          uci set network.globals.packet_steering=0
+          uci set firewall.@defaults[0].flow_offloading=0
+          uci set ecm.@general[0].enable_bridge_filtering=0
+          uci set system.@system[0].cronloglevel='7'
+          /etc/init.d/mwan3 stop
+          /etc/init.d/mwan3 disable
+          /etc/init.d/sqm stop
+          /etc/init.d/sqm disable
+          uci commit
+          EOF
 
-            - name: Get the current date
-              run: echo "NOW=$(date +%F-%H%M)" >> $GITHUB_ENV
+      - name: Ensure permissions for custom script
+        run: chmod +x files/etc/uci-defaults/99-qol_fixes
 
-            - name: Create a release
-              uses: "ncipollo/release-action@v1"
-              with:
-                name: "${{ env.NOW }} | Updated custom prebuilt images for devices (NSS-WiFi)"
-                commit: "main"
-                tag: "ipq807x-nsswifi-${{ env.NOW }}"
-                generateReleaseNotes: true
-                makeLatest: true
-                artifacts: bin/targets/qualcommax/ipq807x/*
-                token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Download package sources
+        run: make download V=s
+
+      - name: Build tools
+        run: |
+          make tools/install -j$(nproc) V=s || make tools/install V=s
+
+      - name: Build toolchain
+        run: |
+          make toolchain/install -j$(nproc) V=s || make toolchain/install V=s
+
+      - name: Build target images
+        run: |
+          make -j$(nproc) V=s || make V=s
+
+      - name: Get the current date
+        run: echo "NOW=$(date +%F-%H%M)" >> $GITHUB_ENV
+
+      - name: Create a release
+        uses: ncipollo/release-action@v1
+        with:
+          name: "${{ env.NOW }} | Updated custom prebuilt images for devices (NSS-WiFi)"
+          commit: "main"
+          tag: "ipq807x-nsswifi-${{ env.NOW }}"
+          generateReleaseNotes: true
+          makeLatest: true
+          artifacts: bin/targets/qualcommax/ipq807x/*
+          token: "${{ secrets.GITHUB_TOKEN }}"
