@@ -12,25 +12,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Clone AgustinLorenzo openwrt for IPQ807x
-        run: git clone --branch main_nss https://github.com/AgustinLorenzo/openwrt.git openwrt
+        run: git clone --branch custom_main_nss https://github.com/aywl1207/openwrt-ipq807x.git openwrt-ipq807x
 
       - name: Move openwrt files to root
-        run: mv openwrt/* .
+        run: mv openwrt-ipq807x/* .
 
       - name: Clean up temporary folder
-        run: rm -rf openwrt
-
-      - name: Clone Openwrt-cloudflared
-        run: git clone https://github.com/moetayuko/openwrt-cloudflared.git openwrt-cloudflared
-
-      - name: Copy Makefile
-        run: cp openwrt-cloudflared/golang/Makefile package/golang
-
-      - name: Clone Argon theme
-        run: git clone https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
-
-      - name: Import feeds for IPQ807x NSS
-        run: cp custom.feeds.conf.default feeds.conf.default
+        run: rm -rf openwrt-ipq807x
 
       - name: Update and install feeds
         run: |
@@ -39,27 +27,6 @@ jobs:
 
       - name: Import full config for IPQ807x NSS
         run: cp .full_custom_config .config
-
-      - name: QoL fixes on default config
-        run: |
-          mkdir -p files/etc/uci-defaults
-          cat > files/etc/uci-defaults/99-qol_fixes << EOF
-          uci set wireless.radio0.country='US'
-          uci set wireless.radio1.country='US'
-          uci set wireless.radio2.country='US'
-          uci set wireless.radio1.disabled=0
-          uci set wireless.radio2.disabled=0
-          uci set pbuf.opt.memory_profile=auto
-          uci set network.globals.packet_steering=0
-          uci set firewall.@defaults[0].flow_offloading=0
-          uci set ecm.@general[0].enable_bridge_filtering=0
-          uci set system.@system[0].cronloglevel='7'
-          /etc/init.d/mwan3 stop
-          /etc/init.d/mwan3 disable
-          /etc/init.d/sqm stop
-          /etc/init.d/sqm disable
-          uci commit
-          EOF
 
       - name: Ensure permissions for custom script
         run: chmod +x files/etc/uci-defaults/99-qol_fixes
