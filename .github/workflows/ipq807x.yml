@@ -22,10 +22,14 @@ jobs:
 
       - name: Update feeds
         run: |
-          echo -e "\nsrc-git packages/lang/golang https://github.com/aywl1207/openwrt-cloudflared.git" >> feeds.conf.default
-          cat feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+          
+      - name: Update custom golang
+        run: |
+          git clone --branch master https://github.com/aywl1207/openwrt-cloudflared.git openwrt-cloudflared
+          mv openwrt-cloudflared/golang/Makefile feeds/packages/lang/golang/golang/Makefile
+          rm -rf openwrt-cloudflared
           
       - name: Import full config for IPQ807x NSS
         run: cp .full_custom_config .config
