@@ -22,7 +22,7 @@ jobs:
       - name: Get Latest Cloudflared Release Tag
         id: get_tag
         run: |
-          TAG=$(curl -sL https://api.github.com/repos/aywl1207/openwrt-cloudflared/releases/latest | jq -r '.[0].tag_name')
+          TAG=$(curl -sL https://api.github.com/repos/aywl1207/openwrt-cloudflared/releases | jq -r '.[0].tag_name')
           echo "TAG=$TAG" >> $GITHUB_ENV
           echo "::set-output name=tag::$TAG"
           
