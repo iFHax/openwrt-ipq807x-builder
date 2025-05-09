@@ -37,6 +37,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Echo env
+        run: echo "TAG_NAME=${TAG_NAME}, ARCH=${ARCH}"
+
       - name: Clone AgustinLorenzo openwrt for IPQ807x
         run: git clone --branch custom_main_nss https://github.com/aywl1207/openwrt-ipq807x.git openwrt-ipq807x
 
