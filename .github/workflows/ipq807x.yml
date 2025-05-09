@@ -87,8 +87,8 @@ jobs:
       - name: Fetch Custom Cloudflared APK
         run: |
           curl -L -o package/network/utils/cloudflared/cloudflared-${TAG_NAME}-${ARCH}.apk \
-          https://github.com/aywl1207/openwrt-cloudflared/releases/latest/download/${TAG_NAME}/cloudflared-${TAG_NAME}-${ARCH}.apk
-
+          "https://github.com/aywl1207/openwrt-cloudflared/releases/download/${TAG_NAME}/cloudflared-${TAG_NAME}-${ARCH}.apk"
+          
       - name: Download package sources
         run: make download V=s
 
