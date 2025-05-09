@@ -28,7 +28,7 @@ jobs:
       - name: Update custom golang
         run: |
           git clone --branch master https://github.com/aywl1207/openwrt-cloudflared.git openwrt-cloudflared
-          mv openwrt-cloudflared/golang/Makefile package/lang/golang/golang/Makefile
+          mv openwrt-cloudflared/golang/Makefile feeds/packages/lang/golang/golang/Makefile
           rm -rf openwrt-cloudflared
           
       - name: Import full config for IPQ807x NSS
