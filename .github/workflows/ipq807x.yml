@@ -13,7 +13,7 @@ jobs:
       - name: Echo env
         run: echo "TAG_NAME=${TAG_NAME}, ARCH=${ARCH}"
 
-      - name: Clone AgustinLorenzo openwrt for IPQ807x and custom golang
+      - name: Clone AgustinLorenzo openwrt for IPQ807x
         run: |
           git clone --branch custom_main_nss https://github.com/aywl1207/openwrt-ipq807x.git openwrt-ipq807x
 
@@ -26,16 +26,13 @@ jobs:
       - name: Update feeds
         run: |
           ./scripts/feeds update -a
+          ./scripts/feeds install -a
 
       - name: Update custom golang
         run: |
           git clone --branch master https://github.com/aywl1207/openwrt-cloudflared.git openwrt-cloudflared
           mv openwrt-cloudflared/golang/Makefile package/lang/golang/golang/Makefile
           rm -rf openwrt-cloudflared
-
-      - name: Install feeds
-        run: |
-          ./scripts/feeds install -a
           
       - name: Import full config for IPQ807x NSS
         run: cp .full_custom_config .config
