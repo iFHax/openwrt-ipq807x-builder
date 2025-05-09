@@ -3,36 +3,9 @@ name: Build IPQ807x NSS WiFi for devices
 on: workflow_dispatch
 
 jobs:
-  detect_arch:
-    runs-on: ubuntu-latest
-    outputs:
-      arch: ${{ steps.detect.outputs.arch }}
-      tag_name: ${{ steps.detect.outputs.tag_name }}
-      
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2.5.0
-
-      - name: Detect Target Architecture and Tag Name
-        id: detect
-        run: |
-          TAG_NAME=$(curl -sL https://api.github.com/repos/aywl1207/openwrt-cloudflared/releases/latest | jq -r '.tag_name')
-          echo "Detected tag name: $TAG_NAME"
-          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
-          echo "::set-output name=tag_name::$TAG_NAME"
-          ARCH=$(grep '^CONFIG_TARGET_ARCH_PACKAGES=' .full_custom_config | cut -d '"' -f 2)
-          echo "Detected architecture: $ARCH"
-          echo "ARCH=$ARCH" >> $GITHUB_ENV
-          echo "::set-output name=arch::$ARCH"
-
   build:
-    needs: detect_arch
     name: Prepare and build IPQ807x NSS images for devices
     runs-on: self-hosted
-    env:
-      ARCH: ${{ needs.detect_arch.outputs.arch }}
-      TAG_NAME: ${{ needs.detect_arch.outputs.tag_name }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -40,8 +13,9 @@ jobs:
       - name: Echo env
         run: echo "TAG_NAME=${TAG_NAME}, ARCH=${ARCH}"
 
-      - name: Clone AgustinLorenzo openwrt for IPQ807x
-        run: git clone --branch custom_main_nss https://github.com/aywl1207/openwrt-ipq807x.git openwrt-ipq807x
+      - name: Clone AgustinLorenzo openwrt for IPQ807x and custom golang
+        run: |
+          git clone --branch custom_main_nss https://github.com/aywl1207/openwrt-ipq807x.git openwrt-ipq807x
 
       - name: Move openwrt files to root
         run: mv openwrt-ipq807x/* .
@@ -49,14 +23,20 @@ jobs:
       - name: Clean up temporary folder
         run: rm -rf openwrt-ipq807x
 
-      - name: Update and install feeds
+      - name: Update feeds
         run: |
           ./scripts/feeds update -a
+
+      - name: Update custom golang
+        run: |
+          git clone --branch master https://github.com/aywl1207/openwrt-cloudflared.git openwrt-cloudflared
+          mv openwrt-cloudflared/golang/Makefile package/lang/golang/golang/Makefile
+          rm -rf openwrt-cloudflared
+
+      - name: Install feeds
+        run: |
           ./scripts/feeds install -a
           
-      - name: Remove Default Cloudflared Package Before Build
-        run: rm -rf feeds/packages/net/cloudflared/*
-
       - name: Import full config for IPQ807x NSS
         run: cp .full_custom_config .config
 
@@ -84,13 +64,6 @@ jobs:
       - name: Ensure permissions for custom script
         run: chmod +x files/etc/uci-defaults/99-qol_fixes
 
-      - name: Debug Filename & URL
-        run: |
-          echo "URL: https://github.com/aywl1207/openwrt-cloudflared/releases/download/${TAG_NAME}/cloudflared-${TAG_NAME}-${ARCH}.apk"
-
-      - name: Fetch Custom Cloudflared APK
-        run: wget -O package/network/utils/cloudflared/cloudflared-${TAG_NAME}-${ARCH}.apk "https://github.com/aywl1207/openwrt-cloudflared/releases/download/${TAG_NAME}/cloudflared-${TAG_NAME}-${ARCH}.apk"
-          
       - name: Download package sources
         run: make download V=s
 
