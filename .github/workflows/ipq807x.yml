@@ -22,7 +22,8 @@ jobs:
 
       - name: Update feeds
         run: |
-          echo "src-git packages/lang/golang https://github.com/aywl1207/openwrt-cloudflared.git" >> feeds.conf.defaults
+          echo -e "\src-git packages/lang/golang https://github.com/aywl1207/openwrt-cloudflared.git" >> feeds.conf.defaults
+          cat feeds.conf.defaults
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           
