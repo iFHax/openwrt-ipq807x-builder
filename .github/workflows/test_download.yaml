@@ -1,4 +1,4 @@
-name: Build IPQ807x NSS WiFi for devices
+name: test download
 
 on: workflow_dispatch
 
