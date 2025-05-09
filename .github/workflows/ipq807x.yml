@@ -84,6 +84,10 @@ jobs:
       - name: Ensure permissions for custom script
         run: chmod +x files/etc/uci-defaults/99-qol_fixes
 
+      - name: Debug Filename & URL
+        run: |
+          echo "URL: https://github.com/aywl1207/openwrt-cloudflared/releases/download/${TAG_NAME}/cloudflared-${TAG_NAME}-${ARCH}.apk"
+
       - name: Fetch Custom Cloudflared APK
         run: |
           wget -O package/network/utils/cloudflared/cloudflared-${TAG_NAME}-${ARCH}.apk "https://github.com/aywl1207/openwrt-cloudflared/releases/download/${TAG_NAME}/cloudflared-${TAG_NAME}-${ARCH}.apk"
