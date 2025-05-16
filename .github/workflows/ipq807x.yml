@@ -7,6 +7,14 @@ jobs:
     name: Prepare and build IPQ807x NSS images for devices
     runs-on: self-hosted
     steps:
+
+      - name: 'Cleanup build folder'
+        run: |
+          ls -la ./
+          rm -rf ./* || true
+          rm -rf ./.??* || true
+          ls -la ./
+        
       - name: Checkout
         uses: actions/checkout@v2
 
