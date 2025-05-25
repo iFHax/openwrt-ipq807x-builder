@@ -66,7 +66,7 @@ jobs:
         run: chmod +x files/etc/uci-defaults/99-qol_fixes
 
       - name: Download package sources
-        run: make download V=s
+        run: make download -j$(nproc) V=s || make download V=s
 
       - name: Build tools
         run: make tools/install -j$(nproc) V=s || make tools/install V=s
